@@ -11,12 +11,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <api.framework.version>2.2-SNAPSHOT</api.framework.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>in.erail</groupId>
             <artifactId>api-framework</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${api.framework.version}</version>
         </dependency>
         <dependency>
             <groupId>io.vertx</groupId>
@@ -50,7 +51,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.20.1</version>
                 <configuration>
-                    <argLine>-Dhazelcast.jmx=true -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -Dglue.layers=${settings.localRepository}/in/erail/api-framework/1.0-SNAPSHOT/api-framework-1.0-SNAPSHOT-common-config.zip,${project.basedir}/config-layers/common,${project.basedir}/config-layers/test</argLine>
+                    <argLine>-Dhazelcast.jmx=true -Dvertx.logger-delegate-factory-class-name=io.vertx.core.logging.Log4j2LogDelegateFactory -Dglue.layers=${settings.localRepository}/in/erail/api-framework/${api.framework.version}/api-framework-${api.framework.version}-common-config.zip,${project.basedir}/config-layers/common,${project.basedir}/config-layers/test</argLine>
                 </configuration>
             </plugin>
             <plugin>
