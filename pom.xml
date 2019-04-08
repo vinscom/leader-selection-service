@@ -19,7 +19,7 @@
             <artifactId>api-framework</artifactId>
             <version>${api.framework.version}</version>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
             <version>5.4.0</version>
