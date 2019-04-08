@@ -1,35 +1,33 @@
 package in.erail.service.leader;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.unit.Async;
-import io.vertx.ext.unit.TestContext;
-import io.vertx.ext.unit.junit.Timeout;
-import io.vertx.ext.unit.junit.VertxUnitRunner;
-import org.junit.Rule;
 import in.erail.glue.Glue;
 import io.reactivex.Single;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.ext.bridge.BridgeEventType;
+import io.vertx.junit5.Checkpoint;
+import io.vertx.junit5.Timeout;
+import io.vertx.junit5.VertxExtension;
+import io.vertx.junit5.VertxTestContext;
 import io.vertx.reactivex.core.eventbus.EventBus;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 /**
  *
  * @author vinay
  */
-@RunWith(VertxUnitRunner.class)
+@ExtendWith(VertxExtension.class)
+@Timeout(value = 1, timeUnit = TimeUnit.MINUTES)
 public class LeaderSelectionServiceTest {
 
-  @Rule
-  public Timeout rule = Timeout.seconds(2000);
-
   @Test
-  public void testRegister(TestContext context) {
+  public void testRegister(VertxTestContext testContext) {
 
-    Async async = context.async(3);
+    Checkpoint chkpoint = testContext.laxCheckpoint(3);
 
     LeaderSelectionService service = Glue.instance().resolve("/in/erail/service/leader/LeaderSelectionService");
 
@@ -63,7 +61,7 @@ public class LeaderSelectionServiceTest {
                       .rxSend(leaderId, new JsonObject(), delOpt)
                       .subscribe((reply) -> {
                         //Step 4: Got empty confirmation on becoming leader
-                        async.countDown();
+                        chkpoint.flag();
                         service
                                 .getVertx()
                                 .sharedData()
@@ -74,8 +72,8 @@ public class LeaderSelectionServiceTest {
                                     m
                                             .rxGet("ninja-live")
                                             .subscribe((v) -> {
-                                              context.assertEquals("FAKE_LEADER_SOCKET", v);
-                                              async.countDown();
+                                              Assertions.assertEquals("FAKE_LEADER_SOCKET", v);
+                                              chkpoint.flag();
                                               
                                               //Step 6: Unregister leader
                                               service
@@ -87,10 +85,10 @@ public class LeaderSelectionServiceTest {
                                                 //Step 7: Check leader has been unregistered
                                                 m.rxGet("ninja-live").subscribe((v2) -> {
                                                   if (v2 == null || LeaderSelectionService.DEFAULT_LEADER_STATUS.equals(v2)) {
-                                                    async.countDown();
+                                                    chkpoint.flag();
                                                     return;
                                                   }
-                                                  context.fail("Wrong map value");
+                                                  Assertions.fail("Wrong map value");
                                                 });
                                               });
                                             });
@@ -98,7 +96,7 @@ public class LeaderSelectionServiceTest {
                                 });
                       });
             });
-
+    
     Single.timer(100, TimeUnit.MILLISECONDS).subscribe((t) -> {
       //Step 1: Send register event
       service.getVertx().eventBus().send(service.getBridgeEventUpdateTopicName(), regsiterMsg);

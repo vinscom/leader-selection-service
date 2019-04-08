@@ -21,10 +21,13 @@ import java.util.regex.Pattern;
 /**
  * <ul>
  * <li>
- * If there are N number of subscribers for Topic A. Then only one subscriber(Leader) out of N subscriber should be able to use send message feature to send message to N subscriber of Topic A.
+ * If there are N number of subscribers for Topic A. Then only one
+ * subscriber(Leader) out of N subscriber should be able to use send message
+ * feature to send message to N subscriber of Topic A.
  * </li>
  * <li>
- * One subscriber can hold leadership for limited time only. After that leadership must be transfered to another subscriber.
+ * One subscriber can hold leadership for limited time only. After that
+ * leadership must be transfered to another subscriber.
  * </li>
  * </ul>
  *
@@ -49,7 +52,9 @@ public class LeaderSelectionService extends SingletonServiceImpl {
             .<LeaderContext>create((e) -> {
               if (!e.isDisposed()) {
                 /**
-                 * On each try, we want to listen on new topic. This to avoid getting confirmation from old leader Leader ID = Session + # + Salt
+                 * On each try, we want to listen on new topic. This to avoid
+                 * getting confirmation from old leader Leader ID = Session + #
+                 * + Salt
                  */
                 pCtx.setConfirmationAddress(UUID.randomUUID().toString());
                 e.onSuccess(pCtx);
@@ -104,8 +109,7 @@ public class LeaderSelectionService extends SingletonServiceImpl {
 
     topicMap
             .rxPutIfAbsent(lctx.getAddress(), DEFAULT_LEADER_STATUS, getClusterMapKeyTimout())
-            .filter((key) -> key == null)
-            .subscribe((key) -> {
+            .doOnComplete(() -> {
               Single
                       .just(lctx)
                       .flatMap(lc -> tryLeaderSelection(lc, debugKey))
@@ -127,7 +131,8 @@ public class LeaderSelectionService extends SingletonServiceImpl {
                         return false;
                       })
                       .subscribe();
-            });
+            })
+            .subscribe();
   }
 
   protected void topicUnregister(BridgeEventUpdate pEvent) {
@@ -146,8 +151,10 @@ public class LeaderSelectionService extends SingletonServiceImpl {
             .rxRemoveIfPresent(pEvent.getAddress(), pEvent.getSession())
             .subscribe((success) -> {
 
-              if (!success) {
+              if (success) {
                 getLog().warn(() -> String.format("[%s] Not able to remove:[%s] from clustermap. Value has changed", debugKey, pEvent.getAddress()));
+              } else {
+                getLog().warn(() -> "Unregister successful:" + pEvent.getAddress());
               }
 
               //Trigger selection of new leader
