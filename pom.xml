@@ -8,11 +8,11 @@
     <packaging>jar</packaging>
     <properties>
         <argLine></argLine>
-        <vertx.version>3.7.0</vertx.version>
+        <vertx.version>3.7.1</vertx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <api.framework.version>2.4.9</api.framework.version>
+        <api.framework.version>2.5.0</api.framework.version>
     </properties>
     <repositories>
         <repository>
