@@ -47,7 +47,7 @@ public class LeaderProcessor implements BridgeEventProcessor {
   public Single<BridgeEventContext> process(Single<BridgeEventContext> pContext) {
     return pContext
             .doOnSuccess((ctx) -> {
-              if (ctx.getBridgeEvent().failed()) {
+              if (ctx.getBridgeEvent().future().failed()) {
                 getLog().debug(() -> String.format("[%s] Failed Event", ctx.getId()));
                 return;
               }
